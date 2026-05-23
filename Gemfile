@@ -9,6 +9,7 @@ group :development, :test do
   gem "minitest-reporters"
   gem "rails", ">= 7.0"
   gem "rubocop", "~> 1.21", require: false
+  gem "rubocop-discourse", require: false
   gem "rubocop-minitest", require: false
   gem "rubocop-rails", require: false
   gem "sqlite3", "~> 1.6"
