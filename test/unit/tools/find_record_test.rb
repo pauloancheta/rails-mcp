@@ -15,7 +15,7 @@ class FindRecordToolTest < ActiveSupport::TestCase
   end
 
   test "finds record with requested fields" do
-    response = call(model: "User", id: @user.id, fields: ["name", "email"])
+    response = call(model: "User", id: @user.id, fields: %w[name email])
     result   = JSON.parse(response.content.first[:text])
     assert_equal "Alice",               result["name"]
     assert_equal "alice@example.com",   result["email"]

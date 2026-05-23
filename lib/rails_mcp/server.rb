@@ -9,9 +9,9 @@ module RailsMcp
         @transport ||= build_transport
       end
 
-      def tool(name, &block)
+      def tool(name, &)
         dsl = ToolDSL.new(name)
-        dsl.instance_eval(&block)
+        dsl.instance_eval(&)
         @custom_tools ||= []
         @custom_tools << dsl.to_mcp_tool
       end

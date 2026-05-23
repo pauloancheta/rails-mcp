@@ -42,7 +42,7 @@ module RailsMcp
           raise Error, "Invalid model name in schema: #{model_name.inspect}"
         end
 
-        unless columns.is_a?(Array) && columns.all? { |c| c.is_a?(String) }
+        unless columns.is_a?(Array) && columns.all?(String)
           raise Error, "Columns for #{model_name} must be an array of strings"
         end
       end

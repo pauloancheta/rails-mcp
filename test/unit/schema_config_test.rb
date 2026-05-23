@@ -93,7 +93,7 @@ class SchemaConfigIntegrationTest < ActiveSupport::TestCase
     names = RailsMcp::Database::ModelResolver.all_accessible.map(&:name)
     assert_includes names, "User"
     assert_includes names, "Post"
-    refute names.any? { |n| n.start_with?("Doorkeeper") }
+    refute(names.any? { |n| n.start_with?("Doorkeeper") })
   end
 
   test "id and timestamps are returned by default even when not listed in schema" do
@@ -134,7 +134,7 @@ class SchemaConfigIntegrationTest < ActiveSupport::TestCase
   test "schema_file takes precedence over allowed_models config" do
     RailsMcp.configure do |c|
       c.schema_file    = FIXTURE
-      c.allowed_models = ["Post"]  # would normally block User
+      c.allowed_models = ["Post"] # would normally block User
     end
     # schema_file wins — User is accessible because it's in the YAML
     assert_equal User, RailsMcp::Database::ModelResolver.resolve("User")

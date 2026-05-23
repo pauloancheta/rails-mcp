@@ -9,11 +9,11 @@ module RailsMcp
       def self.allowed_for(klass)
         schema = RailsMcp.schema_config
         cols = if schema
-          auto = RailsMcp.configuration.default_fields.map(&:to_s) & klass.column_names
-          (schema.allowed_columns(klass.name) + auto).uniq
-        else
-          klass.column_names
-        end
+                 auto = RailsMcp.configuration.default_fields.map(&:to_s) & klass.column_names
+                 (schema.allowed_columns(klass.name) + auto).uniq
+               else
+                 klass.column_names
+               end
         cols.reject { |col| RailsMcp.configuration.column_denied?(col) }
       end
     end

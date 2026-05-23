@@ -29,10 +29,10 @@ module RailsMcp
       parameters  = @parameters
       call_block  = @call_block
 
-      properties = parameters.each_with_object({}) do |p, h|
-        h[p[:name].to_sym] = { type: p[:type] }.tap do |s|
-          s[:description] = p[:description] if p[:description]
-        end
+      properties = parameters.to_h do |p|
+        schema = { type: p[:type] }
+        schema[:description] = p[:description] if p[:description]
+        [p[:name].to_sym, schema]
       end
       required = parameters.select { |p| p[:required] }.map { |p| p[:name] }
       schema = { properties: properties }

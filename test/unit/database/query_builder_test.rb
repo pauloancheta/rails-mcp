@@ -14,7 +14,7 @@ class QueryBuilderTest < ActiveSupport::TestCase
   end
 
   test "returns requested fields" do
-    results = build(User, fields: ["name", "email"]).execute
+    results = build(User, fields: %w[name email]).execute
     assert_equal %w[email name], results.first.keys.sort
   end
 
@@ -93,7 +93,7 @@ class QueryBuilderTest < ActiveSupport::TestCase
   end
 
   test "array of scalars in conditions is accepted" do
-    results = build(User, conditions: { "name" => ["Alice", "Bob"] }, fields: ["name"]).execute
+    results = build(User, conditions: { "name" => %w[Alice Bob] }, fields: ["name"]).execute
     assert_equal 2, results.length
   end
 
@@ -112,7 +112,7 @@ class QueryBuilderTest < ActiveSupport::TestCase
   end
 
   test "negative offset is treated as zero" do
-    results_zero    = build(User, fields: ["name"]).execute
+    results_zero = build(User, fields: ["name"]).execute
     results_negative = build(User, fields: ["name"], offset: -10).execute
     assert_equal results_zero, results_negative
   end

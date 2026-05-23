@@ -17,7 +17,7 @@ class QueryRecordsToolTest < ActiveSupport::TestCase
   end
 
   test "returns specified fields" do
-    response = call(model: "User", fields: ["name", "email"])
+    response = call(model: "User", fields: %w[name email])
     records  = JSON.parse(response.content.first[:text])
     assert records.first.key?("name")
     assert records.first.key?("email")

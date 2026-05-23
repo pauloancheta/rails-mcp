@@ -9,9 +9,9 @@ module RailsMcp
       description "Find a single record by primary key"
       input_schema(
         properties: {
-          model:  { type: "string",  description: "Model class name, e.g. \"User\"" },
-          id:     { type: "integer", description: "Primary key value" },
-          fields: { type: "array",   description: "Columns to return. Defaults to [id, created_at, updated_at]",
+          model: { type: "string", description: "Model class name, e.g. \"User\"" },
+          id: { type: "integer", description: "Primary key value" },
+          fields: { type: "array", description: "Columns to return. Defaults to [id, created_at, updated_at]",
                     items: { type: "string" } }
         },
         required: %w[model id]
@@ -35,7 +35,7 @@ module RailsMcp
           # Post-query: strip denied columns from output regardless of how resolved was built
           resolved
             .reject { |f| RailsMcp.configuration.column_denied?(f) }
-            .each_with_object({}) { |f, h| h[f] = record.public_send(f) }
+            .to_h { |f| [f, record.public_send(f)] }
         end
         MCP::Tool::Response.new([{ type: "text", text: result.to_json }])
       end

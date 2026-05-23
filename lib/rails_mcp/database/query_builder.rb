@@ -26,7 +26,7 @@ module RailsMcp
         scope = @klass.where(@conditions)
         scope = scope.select(resolved_fields.map { |f| @klass.arel_table[f] })
         scope = scope.limit(@limit)
-        scope = scope.offset(@offset) if @offset > 0
+        scope = scope.offset(@offset) if @offset.positive?
         scope = scope.order(safe_order_clause) if @order
 
         scope.map { |record| serialize(record) }
@@ -48,7 +48,7 @@ module RailsMcp
         max = RailsMcp.configuration.max_limit
         return max if limit.nil?
 
-        [limit.to_i, max].min.then { |n| n > 0 ? n : max }
+        [limit.to_i, max].min.then { |n| n.positive? ? n : max }
       end
 
       def validate_conditions!
@@ -56,7 +56,10 @@ module RailsMcp
         raise Error, "Unknown column(s) in conditions: #{unknown.join(", ")}" if unknown.any?
 
         invalid = @conditions.reject { |_, v| valid_condition_value?(v) }
-        raise Error, "Invalid condition value(s) for: #{invalid.keys.join(", ")} (scalars and arrays only)" if invalid.any?
+        return unless invalid.any?
+
+        raise Error,
+              "Invalid condition value(s) for: #{invalid.keys.join(", ")} (scalars and arrays only)"
       end
 
       def validate_fields!
@@ -75,9 +78,9 @@ module RailsMcp
         col, dir = @order.to_s.strip.split(/\s+/, 2)
         raise Error, "Unknown order column: #{col}" unless column_names.include?(col)
 
-        if dir && !ALLOWED_ORDER_DIRECTIONS.include?(dir.upcase)
-          raise Error, "Invalid order direction: #{dir}. Use ASC or DESC"
-        end
+        return unless dir && !ALLOWED_ORDER_DIRECTIONS.include?(dir.upcase)
+
+        raise Error, "Invalid order direction: #{dir}. Use ASC or DESC"
       end
 
       def safe_order_clause
@@ -91,7 +94,7 @@ module RailsMcp
         resolved_fields
           .select { |field| column_names.include?(field) }
           .reject { |field| RailsMcp.configuration.column_denied?(field) }
-          .each_with_object({}) { |field, hash| hash[field] = record.public_send(field) }
+          .to_h { |field| [field, record.public_send(field)] }
       end
 
       def valid_condition_value?(value)

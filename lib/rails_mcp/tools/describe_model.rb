@@ -18,10 +18,10 @@ module RailsMcp
         result = Database::RoleProxy.with_role do
           klass = Database::ModelResolver.resolve(model)
           {
-            model:        klass.name,
-            table:        klass.table_name,
-            primary_key:  klass.primary_key,
-            columns:      column_info(klass),
+            model: klass.name,
+            table: klass.table_name,
+            primary_key: klass.primary_key,
+            columns: column_info(klass),
             associations: association_info(klass)
           }
         end

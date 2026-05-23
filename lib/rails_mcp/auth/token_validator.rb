@@ -23,9 +23,7 @@ module RailsMcp
         return unauthorized("Invalid or expired token") if token.nil? || token.revoked? || token.expired?
 
         required = RailsMcp.configuration.scope
-        if required && !required.empty? && !token.scopes.include?(required)
-          return insufficient_scope(required)
-        end
+        return insufficient_scope(required) if required && !required.empty? && !token.scopes.include?(required)
 
         env["rails_mcp.access_token"] = token
         @app.call(env)
@@ -54,7 +52,7 @@ module RailsMcp
         [
           403,
           {
-            "Content-Type"    => "application/json",
+            "Content-Type" => "application/json",
             "WWW-Authenticate" => "Bearer realm=\"rails-mcp\", error=\"insufficient_scope\", scope=\"#{scope}\""
           },
           [body]

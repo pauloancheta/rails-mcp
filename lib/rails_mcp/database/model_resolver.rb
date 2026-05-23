@@ -18,8 +18,8 @@ module RailsMcp
       def self.all_accessible
         eager_load_models!
         ActiveRecord::Base.descendants
-          .reject(&:abstract_class?)
-          .select { |k| accessible?(k) }
+                          .reject(&:abstract_class?)
+                          .select { |k| accessible?(k) }
       end
 
       private_class_method def self.find_class!(name)

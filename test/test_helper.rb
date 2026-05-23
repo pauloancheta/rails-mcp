@@ -15,9 +15,9 @@ load File.expand_path("dummy/db/schema.rb", __dir__)
 module ActiveRecord
   class Base
     class << self
-      alias_method :_original_connected_to, :connected_to
+      alias _original_connected_to connected_to
 
-      def connected_to(role: nil, shard: nil, prevent_writes: nil, &block)
+      def connected_to(**_kwargs)
         yield
       end
     end

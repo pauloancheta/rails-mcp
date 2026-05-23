@@ -1,5 +1,9 @@
 AllCops:
-  TargetRubyVersion: 2.6
+  TargetRubyVersion: 3.1
+  NewCops: enable
+  Exclude:
+    - "test/dummy/**/*"
+    - "test/tmp/**/*"
 
 Style/StringLiterals:
   Enabled: true
@@ -11,3 +15,33 @@ Style/StringLiteralsInInterpolation:
 
 Layout/LineLength:
   Max: 120
+
+# Class/module docs are not required
+Style/Documentation:
+  Enabled: false
+
+# server_context: is required by the MCP SDK interface even when unused in a tool
+Lint/UnusedMethodArgument:
+  AllowUnusedKeywordArguments: true
+
+# Error subclasses nested in the same file is intentional
+Style/OneClassPerFile:
+  Enabled: false
+
+# We use compact nested module style throughout
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+# Tool and builder classes are data-heavy by design
+Metrics/MethodLength:
+  Max: 20
+Metrics/AbcSize:
+  Max: 30
+Metrics/CyclomaticComplexity:
+  Max: 10
+Metrics/PerceivedComplexity:
+  Max: 10
+Metrics/ClassLength:
+  Max: 150
+Metrics/ParameterLists:
+  Max: 8

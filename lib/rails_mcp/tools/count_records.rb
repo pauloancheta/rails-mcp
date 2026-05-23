@@ -9,7 +9,7 @@ module RailsMcp
       description "Count records matching hash conditions"
       input_schema(
         properties: {
-          model:      { type: "string", description: "Model class name, e.g. \"User\"" },
+          model: { type: "string", description: "Model class name, e.g. \"User\"" },
           conditions: { type: "object", description: "Hash of column => value pairs" }
         },
         required: ["model"]
@@ -27,7 +27,10 @@ module RailsMcp
           raise Database::QueryBuilder::Error, "Unknown column(s): #{unknown.join(", ")}" if unknown.any?
 
           invalid = conditions.reject { |_, v| valid_condition_value?(v) }
-          raise Database::QueryBuilder::Error, "Invalid condition value(s) for: #{invalid.keys.join(", ")} (scalars and arrays only)" if invalid.any?
+          if invalid.any?
+            raise Database::QueryBuilder::Error,
+                  "Invalid condition value(s) for: #{invalid.keys.join(", ")} (scalars and arrays only)"
+          end
 
           klass.where(conditions).count
         end

@@ -91,7 +91,7 @@ class DeniedColumnsTest < ActiveSupport::TestCase
     fixture = File.expand_path("../../fixtures/rails_mcp.yml", __dir__)
     RailsMcp.configure do |c|
       c.schema_file    = fixture
-      c.denied_columns = ["email"]  # email is in the schema but denied here
+      c.denied_columns = ["email"] # email is in the schema but denied here
     end
 
     err = assert_raises(RailsMcp::Database::QueryBuilder::Error) do
@@ -141,7 +141,7 @@ class DeniedColumnsTest < ActiveSupport::TestCase
 
   test "non-denied columns are still accessible" do
     RailsMcp.configuration.denied_columns = ["age"]
-    results = build(User, fields: ["name", "email"]).execute
+    results = build(User, fields: %w[name email]).execute
     assert results.first.key?("name")
     assert results.first.key?("email")
   end
