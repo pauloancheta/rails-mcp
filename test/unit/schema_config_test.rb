@@ -24,7 +24,7 @@ class SchemaConfigTest < ActiveSupport::TestCase
 
   test "allowed_columns returns columns for a model" do
     schema = RailsMcp::SchemaConfig.new(FIXTURE)
-    assert_equal %w[id name created_at], schema.allowed_columns("User")
+    assert_equal %w[name email], schema.allowed_columns("User")
   end
 
   test "allowed_columns returns empty array for unknown model" do
@@ -96,22 +96,37 @@ class SchemaConfigIntegrationTest < ActiveSupport::TestCase
     refute names.any? { |n| n.start_with?("Doorkeeper") }
   end
 
-  test "QueryBuilder only allows schema columns" do
-    # 'email' is NOT in the schema for User — must be rejected
-    err = assert_raises(RailsMcp::Database::QueryBuilder::Error) do
-      RailsMcp::Database::QueryBuilder.new(User, fields: ["email"]).execute
-    end
-    assert_match "Unknown field(s)", err.message
+  test "id and timestamps are returned by default even when not listed in schema" do
+    results = RailsMcp::Database::QueryBuilder.new(User).execute
+    assert results.first.key?("id")
+    assert results.first.key?("created_at")
+    assert results.first.key?("updated_at")
+    refute results.first.key?("name")
   end
 
-  test "QueryBuilder allows schema columns" do
+  test "id and timestamps are queryable in conditions even when not listed in schema" do
+    user    = User.first
+    results = RailsMcp::Database::QueryBuilder.new(User, conditions: { "id" => user.id },
+                                                         fields: ["name"]).execute
+    assert_equal 1, results.length
+  end
+
+  test "QueryBuilder allows schema-listed columns" do
     results = RailsMcp::Database::QueryBuilder.new(User, fields: ["name"]).execute
     assert results.first.key?("name")
   end
 
-  test "QueryBuilder rejects conditions on non-schema columns" do
+  test "QueryBuilder rejects columns not in schema and not in default_fields" do
+    # 'age' is on the User table but not in the schema or default_fields
     err = assert_raises(RailsMcp::Database::QueryBuilder::Error) do
-      RailsMcp::Database::QueryBuilder.new(User, conditions: { "email" => "x" }).execute
+      RailsMcp::Database::QueryBuilder.new(User, fields: ["age"]).execute
+    end
+    assert_match "Unknown field(s)", err.message
+  end
+
+  test "QueryBuilder rejects conditions on columns not in schema or default_fields" do
+    err = assert_raises(RailsMcp::Database::QueryBuilder::Error) do
+      RailsMcp::Database::QueryBuilder.new(User, conditions: { "age" => 30 }).execute
     end
     assert_match "Unknown column(s) in conditions", err.message
   end

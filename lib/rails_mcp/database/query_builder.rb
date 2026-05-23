@@ -35,7 +35,12 @@ module RailsMcp
       def column_names
         @column_names ||= begin
           schema = RailsMcp.schema_config
-          schema ? schema.allowed_columns(@klass.name) : @klass.column_names
+          if schema
+            auto    = RailsMcp.configuration.default_fields.map(&:to_s) & @klass.column_names
+            (schema.allowed_columns(@klass.name) + auto).uniq
+          else
+            @klass.column_names
+          end
         end
       end
 

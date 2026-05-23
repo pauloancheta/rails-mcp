@@ -1,8 +1,5 @@
 User:
-  - id
   - name
-  - created_at
+  - email
 Post:
-  - id
   - title
-  - created_at
