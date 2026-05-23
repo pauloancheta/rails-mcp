@@ -104,6 +104,25 @@ class DeniedColumnsTest < ActiveSupport::TestCase
     assert results.first.key?("name")
   end
 
+  # --- describe_model does not leak denied columns ---
+
+  test "describe_model hides denied columns from schema output" do
+    RailsMcp.configuration.denied_columns = [/age/]
+    response = RailsMcp::Tools::DescribeModel.call(model: "User", server_context: {})
+    result   = JSON.parse(response.content.first[:text])
+    col_names = result["columns"].map { |c| c["name"] }
+    refute_includes col_names, "age"
+    assert_includes col_names, "name"
+  end
+
+  test "describe_model hides denied columns matched by regex" do
+    RailsMcp.configuration.denied_columns = [/email/i]
+    response = RailsMcp::Tools::DescribeModel.call(model: "User", server_context: {})
+    result   = JSON.parse(response.content.first[:text])
+    col_names = result["columns"].map { |c| c["name"] }
+    refute_includes col_names, "email"
+  end
+
   # --- non-denied columns are unaffected ---
 
   test "non-denied columns are still accessible" do

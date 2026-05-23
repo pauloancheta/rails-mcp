@@ -19,5 +19,11 @@ module RailsMcp
       @max_limit      = 100
       @schema_file    = nil
     end
+
+    def column_denied?(name)
+      denied_columns.any? do |pattern|
+        pattern.is_a?(Regexp) ? pattern.match?(name.to_s) : pattern.to_s == name.to_s
+      end
+    end
   end
 end

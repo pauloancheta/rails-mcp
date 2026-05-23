@@ -41,13 +41,7 @@ module RailsMcp
           else
             @klass.column_names
           end
-          cols.reject { |col| column_denied?(col) }
-        end
-      end
-
-      def column_denied?(name)
-        RailsMcp.configuration.denied_columns.any? do |pattern|
-          pattern.is_a?(Regexp) ? pattern.match?(name) : pattern.to_s == name
+          cols.reject { |col| RailsMcp.configuration.column_denied?(col) }
         end
       end
 

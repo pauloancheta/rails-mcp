@@ -29,9 +29,9 @@ module RailsMcp
       end
 
       def self.column_info(klass)
-        klass.columns.map do |col|
-          { name: col.name, type: col.type.to_s, null: col.null, default: col.default }
-        end
+        klass.columns
+             .reject { |col| RailsMcp.configuration.column_denied?(col.name) }
+             .map { |col| { name: col.name, type: col.type.to_s, null: col.null, default: col.default } }
       end
 
       def self.association_info(klass)
