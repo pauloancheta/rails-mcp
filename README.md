@@ -1,8 +1,19 @@
 # rails-mcp
 
-A Rails Engine that adds an [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server to your app. Built on the [official MCP Ruby SDK](https://github.com/modelcontextprotocol/ruby-sdk), it exposes safe, role-aware ActiveRecord query tools over **Streamable HTTP** — no SSE, no standalone process, no extra memory footprint.
+The read-only MCP server Rails developers have been looking for.
 
-Because it mounts as a Rails Engine, MCP requests share Puma's thread pool and ActiveRecord connection pool with the rest of your app.
+Drop it into any Rails app and your AI tools can introspect your ActiveRecord models and query your database instantly — no standalone process, no raw SQL, no credentials handed to a client. By default every query runs against a read-only database role, so production data stays safe. If you need writes, swap in any role your app already has.
+
+Built on the [official MCP Ruby SDK](https://github.com/modelcontextprotocol/ruby-sdk) and mounted as a Rails Engine, it shares Puma's thread pool and your existing connection pool. Nothing extra to run.
+
+## Why rails-mcp
+
+- **Read-only by default** — queries run against a named database role (`:reading`); your write replica or primary is never touched unless you configure it
+- **No raw SQL** — all queries go through hash conditions validated against actual column names; no string interpolation reaches the database
+- **Fine-grained access control** — allowlist models, denylist columns by exact name or regex, or define a per-model column allowlist in a YAML file
+- **OAuth 2.1 + PKCE** — every request requires a scoped Bearer token via [Doorkeeper](https://github.com/doorkeeper-gem/doorkeeper); tokens from other clients are rejected at the middleware layer
+- **Zero extra infrastructure** — mounts as a Rails Engine; shares Puma threads and ActiveRecord connections with the rest of your app
+- **Extensible** — register custom tools alongside the built-ins using a simple DSL
 
 ## Table of contents
 
@@ -10,7 +21,6 @@ Because it mounts as a Rails Engine, MCP requests share Puma's thread pool and A
 - [Basic setup](#basic-setup)
 - [Quick example](#quick-example)
 - [Documentation](#documentation)
-- [Why not fast-mcp?](#why-not-fast-mcp)
 
 ## Installation
 
@@ -103,10 +113,6 @@ curl -X POST https://your-app.com/mcp \
 | [Querying](docs/querying.md) | All five built-in tools with full argument reference |
 | [Configuration](docs/configuration.md) | All config options with defaults and explanations |
 | [Advanced usage](docs/advanced.md) | YAML model allowlist, explicit column deny, custom tools DSL |
-
-## Why not fast-mcp?
-
-fast-mcp uses SSE transport, which holds a Puma thread open for the lifetime of each client connection. With 5 Puma threads and 5 MCP clients connected, your app is saturated. SSE was [deprecated in the MCP spec](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports) in March 2025 in favour of Streamable HTTP, which uses normal short-lived POST requests.
 
 ## Development
 
