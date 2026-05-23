@@ -13,6 +13,7 @@ Gem::Specification.new do |spec|
                      "HTTP-only Streamable HTTP transport. Provides built-in ActiveRecord query tools " \
                      "with configurable database roles, field filtering, and OAuth 2.1 + PKCE auth via Doorkeeper."
   spec.homepage = "https://github.com/pauloancheta/rails-mcp"
+  spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
 
   spec.metadata["homepage_uri"] = spec.homepage
@@ -29,6 +30,6 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "doorkeeper", "~> 5.6"
-  spec.add_dependency "mcp"
+  spec.add_dependency "mcp", "~> 0.17"
   spec.add_dependency "rails", ">= 7.0"
 end
