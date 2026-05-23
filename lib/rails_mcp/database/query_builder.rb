@@ -35,12 +35,19 @@ module RailsMcp
       def column_names
         @column_names ||= begin
           schema = RailsMcp.schema_config
-          if schema
-            auto    = RailsMcp.configuration.default_fields.map(&:to_s) & @klass.column_names
+          cols = if schema
+            auto = RailsMcp.configuration.default_fields.map(&:to_s) & @klass.column_names
             (schema.allowed_columns(@klass.name) + auto).uniq
           else
             @klass.column_names
           end
+          cols.reject { |col| column_denied?(col) }
+        end
+      end
+
+      def column_denied?(name)
+        RailsMcp.configuration.denied_columns.any? do |pattern|
+          pattern.is_a?(Regexp) ? pattern.match?(name) : pattern.to_s == name
         end
       end
 

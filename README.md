@@ -64,8 +64,9 @@ RailsMcp.configure do |config|
   config.database_role  = :reading   # default — any named role works
   config.default_fields = [:id, :created_at, :updated_at]  # default
   config.allowed_models = %w[User Post Order]  # empty = all models
-  config.denied_models  = %w[AdminUser]
-  config.max_limit      = 100        # max records per query
+  config.denied_models   = %w[AdminUser]
+  config.denied_columns  = ["password_digest", "encrypted_password", /token/i, /secret/i]
+  config.max_limit       = 100        # max records per query
 
   # Optional: point to a YAML file that defines per-model column allowlists.
   # When set, this takes precedence over allowed_models / denied_models.
@@ -91,6 +92,26 @@ Post:
   - created_at
   - updated_at
 ```
+
+## Denying Columns
+
+`denied_columns` accepts an array of exact strings and/or regexes. Matching columns become completely invisible — they cannot be returned, used in `conditions`, or used in `order`, regardless of whether a `schema_file` is set.
+
+```ruby
+RailsMcp.configure do |config|
+  config.denied_columns = [
+    "password_digest",
+    "encrypted_password",
+    /token/i,
+    /secret/i,
+    /api_key/i
+  ]
+end
+```
+
+`denied_columns` is applied last, after schema and model column resolution, so it always wins.
+
+## Schema File
 
 When `schema_file` is configured:
 
