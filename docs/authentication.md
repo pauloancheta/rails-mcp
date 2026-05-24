@@ -70,6 +70,59 @@ end
 
 Then request or create tokens that include the `mcp` scope. To use a different scope name, or to disable the check entirely, see [`configuration.scope`](configuration.md#scope).
 
+## Connecting Claude
+
+Register the server with Claude Code using the `claude mcp add` command:
+
+```bash
+claude mcp add --transport http company-mcp https://your-app.com/mcp \
+  --header "Authorization: Bearer $TOKEN"
+```
+
+Replace `company-mcp` with whatever name you want the server to appear as in Claude, and `$TOKEN` with your Bearer token. To persist the token across sessions, export it in your shell profile:
+
+```bash
+export COMPANY_MCP_TOKEN="eyJhbGc..."
+
+claude mcp add --transport http company-mcp https://your-app.com/mcp \
+  --header "Authorization: Bearer $COMPANY_MCP_TOKEN"
+```
+
+Use `--scope project` to share the server config with your whole team via `.mcp.json`:
+
+```bash
+claude mcp add --transport http company-mcp https://your-app.com/mcp \
+  --header "Authorization: Bearer $COMPANY_MCP_TOKEN" \
+  --scope project
+```
+
+Each developer supplies their own token via the environment variable; the URL and server name are committed.
+
+## Connecting Codex
+
+Add the server to `~/.codex/config.toml` (or `.codex/config.toml` in your project root for team-scoped config):
+
+```toml
+[mcp_servers.company-mcp]
+url = "https://your-app.com/mcp"
+bearer_token_env_var = "COMPANY_MCP_TOKEN"
+```
+
+`bearer_token_env_var` names the environment variable that holds the Bearer token — Codex reads it at runtime and sends it as the `Authorization` header. Export the variable in your shell profile:
+
+```bash
+export COMPANY_MCP_TOKEN="eyJhbGc..."
+```
+
+If you need to pass additional static headers alongside the token:
+
+```toml
+[mcp_servers.company-mcp]
+url = "https://your-app.com/mcp"
+bearer_token_env_var = "COMPANY_MCP_TOKEN"
+http_headers = { "X-App-Env" = "production" }
+```
+
 ## Making authenticated requests
 
 Include the token in the `Authorization` header:

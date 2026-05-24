@@ -88,6 +88,19 @@ That's it — the five built-in query tools are live at `/mcp`.
 # Get a Bearer token (see docs/authentication.md)
 TOKEN="eyJhbGc..."
 
+# Connect Claude Code
+claude mcp add --transport http company-mcp https://your-app.com/mcp \
+  --header "Authorization: Bearer $TOKEN"
+
+# Connect Codex — add to ~/.codex/config.toml
+# [mcp_servers.company-mcp]
+# url = "https://your-app.com/mcp"
+# bearer_token_env_var = "TOKEN"
+```
+
+That's it — Claude or Codex now has access to your Rails models. You can also hit the endpoint directly:
+
+```bash
 # List accessible models
 curl -X POST https://your-app.com/mcp \
   -H "Authorization: Bearer $TOKEN" \
