@@ -17,13 +17,17 @@ module RailsMcp
         return @app.call(env) if request.path.start_with?(WELL_KNOWN_PREFIX)
 
         token_string = extract_bearer_token(env)
-        return unauthorized("Bearer token required") if token_string.nil?
+        return log_and_reject(request, :unauthorized, "Bearer token required") if token_string.nil?
 
         token = Doorkeeper::AccessToken.by_token(token_string)
-        return unauthorized("Invalid or expired token") if token.nil? || token.revoked? || token.expired?
+        if token.nil? || token.revoked? || token.expired?
+          return log_and_reject(request, :unauthorized, "Invalid or expired token")
+        end
 
         required = RailsMcp.configuration.scope
-        return insufficient_scope(required) if required && !required.empty? && !token.scopes.include?(required)
+        if required && !required.empty? && !token.scopes.include?(required)
+          return log_and_reject(request, :insufficient_scope, required)
+        end
 
         env["rails_mcp.access_token"] = token
         @app.call(env)
@@ -36,6 +40,12 @@ module RailsMcp
         return nil unless auth&.start_with?("Bearer ")
 
         auth.delete_prefix("Bearer ").strip
+      end
+
+      def log_and_reject(request, type, detail)
+        Rails.logger.warn "[activerecord-mcp] Auth rejected #{request.request_method} #{request.path} " \
+                          "ip=#{request.ip} reason=#{type} detail=#{detail.inspect}"
+        type == :insufficient_scope ? insufficient_scope(detail) : unauthorized(detail)
       end
 
       def unauthorized(message)

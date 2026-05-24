@@ -37,6 +37,10 @@ module RailsMcp
         raise AccessDenied, "Model #{klass.name} is not accessible" unless accessible?(klass)
       end
 
+      def self.accessible_model?(klass)
+        accessible?(klass)
+      end
+
       private_class_method def self.accessible?(klass)
         # Schema file takes precedence over allowed_models/denied_models
         schema = RailsMcp.schema_config

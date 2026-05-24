@@ -29,15 +29,23 @@ module RailsMcp
       end
 
       def self.column_info(klass)
+        allowed = Database::ColumnPolicy.allowed_for(klass)
         klass.columns
-             .reject { |col| RailsMcp.configuration.column_denied?(col.name) }
+             .select { |col| allowed.include?(col.name) }
              .map { |col| { name: col.name, type: col.type.to_s, null: col.null, default: col.default } }
       end
 
       def self.association_info(klass)
-        klass.reflect_on_all_associations.map do |assoc|
-          { name: assoc.name.to_s, macro: assoc.macro.to_s, class_name: assoc.class_name }
-        end
+        klass.reflect_on_all_associations
+             .reject { |assoc| denied_association?(assoc) }
+             .map { |assoc| { name: assoc.name.to_s, macro: assoc.macro.to_s, class_name: assoc.class_name } }
+      end
+
+      def self.denied_association?(assoc)
+        klass = assoc.class_name.safe_constantize
+        return false unless klass && klass < ActiveRecord::Base
+
+        !Database::ModelResolver.accessible_model?(klass)
       end
 
       private_class_method :column_info, :association_info
